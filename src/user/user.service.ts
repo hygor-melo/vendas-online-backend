@@ -1,29 +1,45 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { CreateUserDTO } from './dtos/createUser.dto';
-import { UserEntity } from './interfaces/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { hash } from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  private users: UserEntity[] = [];
+  
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ){}
 
   async createUser(createUserDto: CreateUserDTO): Promise<UserEntity> {
     const saltOrRounds = 10;
 
     const pwdhashed = await hash(createUserDto.password, saltOrRounds);
 
-    const user = {
+    return this.userRepository.save({
       ...createUserDto,
-      id: this.users.length + 1,
-      password: pwdhashed
-    }
-
-    this.users.push(user);
-
-    return user;
+      typeUser: 1,
+      password: pwdhashed,
+    });
   }
 
   async getAllUser(): Promise<UserEntity[]> {
-    return this.users;
+    return this.userRepository.find();
+  }
+
+  async findUserById(userId: number): Promise<UserEntity>{
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId
+      }
+    });
+
+    if(!user){
+      throw new NotFoundException(`UserId: ${userId} Not Found`);
+    }      
+
+    return user;
   }
 }

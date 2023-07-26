@@ -13,7 +13,8 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ){}
 
-  async createUser(createUserDto: CreateUserDTO): Promise<UserEntity> {
+  async createUser(createUserDto: CreateUserDTO): Promise<UserEntity> 
+  {
     const saltOrRounds = 10;
 
     const pwdhashed = await hash(createUserDto.password, saltOrRounds);
@@ -25,11 +26,13 @@ export class UserService {
     });
   }
 
-  async getAllUser(): Promise<UserEntity[]> {
+  async getAllUser(): Promise<UserEntity[]> 
+  {
     return this.userRepository.find();
   }
 
-  async findUserById(userId: number): Promise<UserEntity>{
+  async findUserById(userId: number): Promise<UserEntity>
+  {
     const user = await this.userRepository.findOne({
       where: {
         id: userId
@@ -41,5 +44,15 @@ export class UserService {
     }      
 
     return user;
+  }
+
+  async getUserByIdUsingRelations(userId: number): Promise<UserEntity>
+  {
+    return this.userRepository.findOne({
+      where: {
+        id: userId
+      },
+      relations: ['addresses']
+    });
   }
 }

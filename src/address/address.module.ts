@@ -13,6 +13,6 @@ import { CityModule } from 'src/city/city.module';
     CityModule
   ],
   controllers: [AddressController],
-  providers: [AddressService]
+  providers: [AddressService],
 })
 export class AddressModule {}
